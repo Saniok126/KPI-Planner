@@ -43,8 +43,7 @@ public class BaseActivity extends AppCompatActivity {
 
         String groupN = "ИС-42";
         groupN = getIntent().getExtras().getString("userGroup");
-        TextView infotextView = (TextView)findViewById(R.id.editText);
-        infotextView.setText(groupN);
+
     }
 
 }
