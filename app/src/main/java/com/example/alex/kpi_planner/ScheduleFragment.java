@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -21,19 +22,22 @@ public class ScheduleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_schedule2, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_schedule2, container, false);
+        rootView.findViewById()
+        return rootView;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        Toast.makeText(getActivity(), "Teacher fragment show", Toast.LENGTH_SHORT).show();
         inflater.inflate(R.menu.menu_schedule, menu);
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
