@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class BaseActivity extends AppCompatActivity {
 
@@ -39,6 +40,11 @@ public class BaseActivity extends AppCompatActivity {
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        String groupN = "ИС-42";
+        groupN = getIntent().getExtras().getString("userGroup");
+        TextView infotextView = (TextView)findViewById(R.id.editText);
+        infotextView.setText(groupN);
     }
 
 }
