@@ -1,8 +1,15 @@
 package com.example.alex.kpi_planner;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.example.alex.kpi_planner.dataClasses.Day;
 
 /**
  * Created by Saniok on 11.12.2017.
@@ -12,21 +19,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "groupsDB";
-
-    public static final String TABLE_TEACHERS = "Teacher";
-    public static final String TEACHERS_ID = "_id";
-    public static final String TEACHERS_NAME = "Name";
-    public static final String TEACHERS_SHORT = "Short_name";
-    public static final String TEACHERS_DEGREE = "Degree";
-
-    public static final String TABLE_TEACH_DISC_RELATIONS = "Teach_Disc_relations";
-    public static final String TDR_ID = "_id";
-    public static final String TDR_TEACHERS_ID = "Teacher_id";
-    public static final String TDR_DISCIPLINE_ID = "Discipline_id";
-
-    public static final String TABLE_GROUP = "class";
-    public static final String GROUP_ID = "_id";
-    public static final String GROUP_NAME = "Name";
 
     public static final String TABLE_DAY = "Day";
     public static final String DAY_ID = "_id";
@@ -41,13 +33,9 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TABLING_LESSON_ID = "Lesson_id";
     public static final String TABLING_ROOM_ID = "Room_id";
     public static final String TABLING_TYPE = "Type";
+    public static final String TABLING_TEACHER = "Teacher";
 
-    public static final String TABLE_GROUP_DISC_RELATIONS = "Group_Disc_relations";
-    public static final String GDR_ID = "_id";
-    public static final String GDR_GROUP_ID = "Group_id";
-    public static final String GDR_DISC_ID = "Discipline_id";
-
-    public static final String TABLE_DISCIPLINE = "DIscipline";
+    public static final String TABLE_DISCIPLINE = "Discipline";
     public static final String DISC_ID = "_id";
     public static final String DISC_NAME = "Name";
     public static final String DISC_FULL_NAME = "Full_name";
@@ -78,26 +66,87 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text)", TABLE_ROOM, ROOM_ID, ROOM_NAME, ROOM_BUILD_ID));
         db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text)", TABLE_LESSON, LESSON_ID, LESSON_START_TIME, LESSON_END_TIME));
         db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text, %s text)", TABLE_DAY, DAY_ID, DAY_NAME, DAY_NUMBER, DAY_WEEK));
-        db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text, %s text)", TABLE_TEACHERS, TEACHERS_ID, TEACHERS_NAME, TEACHERS_SHORT, TEACHERS_DEGREE));
         db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text)", TABLE_DISCIPLINE, DISC_ID, DISC_NAME, DISC_FULL_NAME));
-        db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text)", TABLE_GROUP_DISC_RELATIONS, GDR_ID, GDR_GROUP_ID, GDR_DISC_ID));
-        db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text, %s text, %s text, %s text)", TABLE_TABLING, TABLING_ID, TABLING_DAY_ID, TABLING_DISC_ID, TABLING_LESSON_ID,TABLING_ROOM_ID,TABLING_TYPE));
-        db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text)", TABLE_TEACH_DISC_RELATIONS, TDR_ID, TDR_TEACHERS_ID, TDR_DISCIPLINE_ID));
-        db.execSQL(String.format("create table %s (%s integer primary key, %s text)", TABLE_GROUP, GROUP_ID, GROUP_NAME));
+        db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text, %s text, %s text, %s text, %s text)", TABLE_TABLING, TABLING_ID, TABLING_DAY_ID, TABLING_DISC_ID, TABLING_LESSON_ID,TABLING_ROOM_ID,TABLING_TYPE, TABLING_TEACHER));
+
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(String.format("drop table if exists %s", TABLE_BUILDING));
         db.execSQL(String.format("drop table if exists %s", TABLE_ROOM));
         db.execSQL(String.format("drop table if exists %s", TABLE_LESSON));
         db.execSQL(String.format("drop table if exists %s", TABLE_DAY));
-        db.execSQL(String.format("drop table if exists %s", TABLE_TEACHERS));
         db.execSQL(String.format("drop table if exists %s", TABLE_DISCIPLINE));
-        db.execSQL(String.format("drop table if exists %s", TABLE_GROUP_DISC_RELATIONS));
         db.execSQL(String.format("drop table if exists %s", TABLE_TABLING));
-        db.execSQL(String.format("drop table if exists %s", TABLE_TEACH_DISC_RELATIONS));
-        db.execSQL(String.format("drop table if exists %s", TABLE_GROUP));
         onCreate(db);
     }
+
+    public long insertDays(){
+        SQLiteDatabase database = getWritableDatabase();
+        long newRowId = -1;
+        if (countDays() <= 0) {
+            ContentValues contentValues = new ContentValues();
+            String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+            String[] weeks = {"1", "2"};
+            for (int weekId = 0; weekId < weeks.length; weekId++) {
+                for (int i = 0; i < days.length; i++) {
+                    contentValues.put(DBHelper.DAY_NUMBER, i + 1);
+                    contentValues.put(DBHelper.DAY_NAME, days[i]);
+                    contentValues.put(DBHelper.DAY_WEEK, weeks[weekId]);
+                    newRowId = database.insert(DBHelper.TABLE_DAY, null, contentValues);
+                }
+            }
+        }
+        return newRowId;
+    }
+
+    public Day selectDay(String week, String dayNumber){
+        SQLiteDatabase db = getReadableDatabase();
+
+        String selectQuery = String.format(
+                "SELECT %s, %s FROM %s WHERE %s = %s AND %s = %s",
+                DAY_ID, DAY_NAME, TABLE_DAY, DAY_WEEK, week, DAY_NUMBER, dayNumber);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        Day day = new Day();
+        if (c != null) {
+            c.moveToFirst();
+
+            if (c.getCount() > 0) {
+                day.setId(c.getString(c.getColumnIndex(DAY_ID)));
+                day.setName(c.getString(c.getColumnIndex(DAY_NAME)));
+            }
+        }
+
+        return day;
+    }
+
+    public int countDays(){
+        SQLiteDatabase db = getReadableDatabase();
+
+        String selectQuery = String.format(
+                "SELECT Count(*) FROM %s",
+                TABLE_DAY);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        int count = 0;
+        if (c != null) {
+            c.moveToFirst();
+            count = c.getInt(0);
+        }
+        Log.e(DBHelper.DATABASE_NAME, " " + count);
+        return count;
+    }
+
+
+
+
+
+
+
+
+
 }
