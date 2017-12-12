@@ -95,8 +95,8 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void readClick(View view) {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        database.delete(DBHelper.TABLE_DAY,null,null);
+      //  SQLiteDatabase database = dbHelper.getWritableDatabase();
+       // database.delete(DBHelper.TABLE_DAY,null,null);
          //database.execSQL(String.format("drop table if exists %s", DBHelper.TABLE_BUILDING));
          //database.execSQL(String.format("drop table if exists %s", DBHelper.TABLE_ROOM));
          //database.execSQL(String.format("drop table if exists %s", DBHelper.TABLE_LESSON));database.execSQL(String.format("drop table if exists %s", DBHelper.TABLE_DAY));
@@ -108,7 +108,7 @@ public class BaseActivity extends AppCompatActivity {
          //database.execSQL(String.format("drop table if exists %s", DBHelper.TABLE_GROUP));
 
      //  dbHelper.onCreate(database);
-        Toast.makeText(this,"БД удалена: ",Toast.LENGTH_SHORT).show();
+       // Toast.makeText(this,"БД удалена: ",Toast.LENGTH_SHORT).show();
 
     }
 
