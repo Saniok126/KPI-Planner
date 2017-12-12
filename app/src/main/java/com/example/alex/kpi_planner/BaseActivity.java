@@ -1,6 +1,7 @@
 package com.example.alex.kpi_planner;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -112,18 +114,22 @@ public class BaseActivity extends AppCompatActivity {
 
     }
 
-    public void checkClick(View view) {
-        SQLiteDatabase database = dbHelper.getReadableDatabase();
+    public String checkClick(View view) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String[] projection = {
-                DBHelper.DAY_ID,
-                DBHelper.DAY_NAME,
-                DBHelper.DAY_WEEK,
-                DBHelper.DAY_NUMBER};
+        String selectQuery = "SELECT " + DBHelper.DAY_NAME + " FROM " + DBHelper.TABLE_DAY + " WHERE "
+                + DBHelper.DAY_ID + " = 1";
 
+        Log.e(DBHelper.DATABASE_NAME, selectQuery);
 
+         Cursor c = db.rawQuery(selectQuery, null);
 
+        if (c != null)
+            c.moveToFirst();
 
-        dbHelper.close();
+        String dayName = c.getString(c.getColumnIndex(DBHelper.DAY_NAME))
+        Toast.makeText(this, dayName, Toast.LENGTH_SHORT).show();
+
+        return dayName;
     }
 }
