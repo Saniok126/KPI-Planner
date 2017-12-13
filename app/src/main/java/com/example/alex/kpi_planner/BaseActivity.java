@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.alex.kpi_planner.dataClasses.Building;
 import com.example.alex.kpi_planner.dataClasses.Day;
 
 public class BaseActivity extends AppCompatActivity {
@@ -61,13 +62,46 @@ public class BaseActivity extends AppCompatActivity {
         dbHelper = new DBHelper(this);
     }
 
+    //*************** QUERIES *********************
+
     public void addClick(View view) {
+        long totalRowIndex = dbHelper.insertBuilding("15", "111", "222");
+        if (totalRowIndex == -1) {
+            Toast.makeText(this,"Error: building didn't add",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this,"Completed. Total rows: " + totalRowIndex,Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void addLessonClick(View view) {
+        long totalRowIndex = dbHelper.insertLessons();
+        if (totalRowIndex == -1) {
+            Toast.makeText(this,"Error: days didn't add",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this,"Completed. Total rows: " + totalRowIndex,Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void checkClick(View view) {
+        Building building = dbHelper.selectBuilding("15");
+        if (building != null)
+            Toast.makeText(this, "building id: " + building.getId(), Toast.LENGTH_SHORT).show();
+    }
+
+
+    public void addDayClick(View view) {
         long totalRowIndex = dbHelper.insertDays();
         if (totalRowIndex == -1) {
             Toast.makeText(this,"Error: days didn't add",Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this,"Completed. Total rows: " + totalRowIndex,Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void checkDayClick(View view) {
+        Day day = dbHelper.selectDay("2","5");
+        if (day != null)
+            Toast.makeText(this, day.getId() + " " + day.getName(), Toast.LENGTH_SHORT).show();
     }
 
     public void readClick(View view) {
@@ -78,9 +112,4 @@ public class BaseActivity extends AppCompatActivity {
 
     }
 
-    public void checkClick(View view) {
-        Day day = dbHelper.selectDay("2","5");
-        if (day != null)
-            Toast.makeText(this, day.getId() + " " + day.getName(), Toast.LENGTH_SHORT).show();
-    }
 }
