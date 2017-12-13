@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.example.alex.kpi_planner.dataClasses.Building;
 import com.example.alex.kpi_planner.dataClasses.Day;
+import com.example.alex.kpi_planner.dataClasses.Room;
 
 /**
  * Created by Saniok on 11.12.2017.
@@ -178,27 +179,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return count;
     }
 
-/*    public Day selectLesson(String number){
-        SQLiteDatabase db = getReadableDatabase();
-
-        String selectQuery = String.format(
-                "SELECT %s, %s FROM %s WHERE %s = %s AND %s = %s",
-                DAY_ID, DAY_NAME, TABLE_DAY, DAY_WEEK, week, DAY_NUMBER, dayNumber);
-
-        Cursor c = db.rawQuery(selectQuery, null);
-
-        Day day = new Day();
-        if (c != null) {
-            c.moveToFirst();
-
-            if (c.getCount() > 0) {
-                day.setId(c.getString(c.getColumnIndex(DAY_ID)));
-                day.setName(c.getString(c.getColumnIndex(DAY_NAME)));
-            }
-        }
-        return day;
-    }*/
-
     public long insertBuilding(String name, String latitude, String longitude){
         SQLiteDatabase database = getWritableDatabase();
         long newRowId;
@@ -238,5 +218,40 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
+    public Room selectRoom(String name, String buildingId){
+        SQLiteDatabase db = getReadableDatabase();
+
+        String selectQuery = String.format(
+                "SELECT * FROM %s WHERE %s = %s AND %s = %s",
+                TABLE_ROOM, ROOM_NAME, name, ROOM_BUILD_ID, buildingId);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        Room room = new Room();
+        if (c != null) {
+            c.moveToFirst();
+
+            if (c.getCount() > 0) {
+                room.setId(c.getString(c.getColumnIndex(ROOM_ID)));
+                room.setNumber(c.getString(c.getColumnIndex(ROOM_NAME)));
+                room.setBuildingId(c.getString(c.getColumnIndex(ROOM_BUILD_ID)));
+            }
+        }
+        return room;
+    }
+
+    public long insertRoom(String name, String buildingId){
+        SQLiteDatabase database = getWritableDatabase();
+        long newRowId;
+        Room room = selectRoom(name, buildingId);
+        if (room.isEmpty()) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(ROOM_NAME, name);
+            contentValues.put(ROOM_BUILD_ID, buildingId);
+            newRowId = database.insert(TABLE_ROOM, null, contentValues);
+        }
+        else newRowId = Long.parseLong(room.getId());
+        return newRowId;
+    }
 
 }

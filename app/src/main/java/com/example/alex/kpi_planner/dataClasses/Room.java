@@ -10,6 +10,10 @@ public class Room {
     private String number;
     private String buildingId;
 
+    public boolean isEmpty(){
+        return (id == null);
+    }
+
     public String getId() {
         return id;
     }
