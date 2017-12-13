@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.example.alex.kpi_planner.dataClasses.Building;
 import com.example.alex.kpi_planner.dataClasses.Day;
+import com.example.alex.kpi_planner.dataClasses.Discipline;
 import com.example.alex.kpi_planner.dataClasses.Room;
 
 /**
@@ -70,7 +71,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text)", TABLE_LESSON, LESSON_ID, LESSON_START_TIME, LESSON_END_TIME));
         db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text, %s text)", TABLE_DAY, DAY_ID, DAY_NAME, DAY_NUMBER, DAY_WEEK));
         db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text, %s text)", TABLE_DISCIPLINE, DISC_ID, DISC_NAME, DISC_FULL_NAME, DISC_NUMBER));
-        db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text, %s text, %s text, %s text, %s text)", TABLE_TABLING, TABLING_ID, TABLING_DAY_ID, TABLING_DISC_ID, TABLING_LESSON_ID,TABLING_ROOM_ID,TABLING_TYPE, TABLING_TEACHER));
+        db.execSQL(String.format("create table %s (%s integer primary key, %s text, %s text, %s text, %s text, %s text, %s text)", TABLE_TABLING, TABLING_ID, TABLING_DAY_ID, TABLING_DISC_ID, TABLING_LESSON_ID, TABLING_ROOM_ID, TABLING_TYPE, TABLING_TEACHER));
 
     }
 
@@ -85,7 +86,7 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertDays(){
+    public long insertDays() {
         SQLiteDatabase database = getWritableDatabase();
         long newRowId = -1;
         if (countDays() <= 0) {
@@ -104,7 +105,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return newRowId;
     }
 
-    public Day selectDay(String week, String dayNumber){
+    public Day selectDay(String week, String dayNumber) {
         SQLiteDatabase db = getReadableDatabase();
 
         String selectQuery = String.format(
@@ -125,7 +126,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return day;
     }
 
-    public int countDays(){
+    public int countDays() {
         SQLiteDatabase db = getReadableDatabase();
 
         String selectQuery = String.format(
@@ -143,7 +144,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public long insertLessons(){
+    public long insertLessons() {
         SQLiteDatabase database = getWritableDatabase();
         long newRowId = -1;
         //database.delete(TABLE_LESSON,null,null);
@@ -161,7 +162,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return newRowId;
     }
 
-    public int countLessons(){
+    public int countLessons() {
         SQLiteDatabase db = getReadableDatabase();
 
         String selectQuery = String.format(
@@ -179,7 +180,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public long insertBuilding(String name, String latitude, String longitude){
+    public long insertBuilding(String name, String latitude, String longitude) {
         SQLiteDatabase database = getWritableDatabase();
         long newRowId;
         Building building = selectBuilding(name);
@@ -189,12 +190,11 @@ public class DBHelper extends SQLiteOpenHelper {
             contentValues.put(BUILD_LATITUDE, latitude);
             contentValues.put(BUILD_LONGITUDE, longitude);
             newRowId = database.insert(TABLE_BUILDING, null, contentValues);
-        }
-        else newRowId = Long.parseLong(building.getId());
+        } else newRowId = Long.parseLong(building.getId());
         return newRowId;
     }
 
-    public Building selectBuilding(String name){
+    public Building selectBuilding(String name) {
         SQLiteDatabase db = getReadableDatabase();
 
         String selectQuery = String.format(
@@ -218,7 +218,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    public Room selectRoom(String name, String buildingId){
+    public Room selectRoom(String name, String buildingId) {
         SQLiteDatabase db = getReadableDatabase();
 
         String selectQuery = String.format(
@@ -240,7 +240,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return room;
     }
 
-    public long insertRoom(String name, String buildingId){
+    public long insertRoom(String name, String buildingId) {
         SQLiteDatabase database = getWritableDatabase();
         long newRowId;
         Room room = selectRoom(name, buildingId);
@@ -249,9 +249,48 @@ public class DBHelper extends SQLiteOpenHelper {
             contentValues.put(ROOM_NAME, name);
             contentValues.put(ROOM_BUILD_ID, buildingId);
             newRowId = database.insert(TABLE_ROOM, null, contentValues);
-        }
-        else newRowId = Long.parseLong(room.getId());
+        } else newRowId = Long.parseLong(room.getId());
         return newRowId;
     }
 
+    public Discipline selectDisc(String name, String discnumber) {
+        SQLiteDatabase database = getReadableDatabase();
+        String selectQuery = String.format("SELECT * FROM %s WHERE %s = %s",
+                TABLE_DISCIPLINE, DISC_NUMBER, discnumber);
+        Cursor c = database.rawQuery(selectQuery, null);
+        Discipline discipline = new Discipline();
+        if (c != null) {
+            c.moveToFirst();
+            if (c.getCount() > 0) {
+                discipline.setId(c.getString(c.getColumnIndex(DISC_ID)));
+                discipline.setNumber(c.getString(c.getColumnIndex(DISC_NUMBER)));
+                discipline.setName(c.getString(c.getColumnIndex(DISC_NAME)));
+                discipline.setFullName(c.getString(c.getColumnIndex(DISC_FULL_NAME)));
+            }
+        }
+        return discipline;
+    }
+
+
+    public long insertDisc(String name, String number, String fullName) {
+        SQLiteDatabase database = getWritableDatabase();
+        long newRowName;
+        Discipline discipline = selectDisc(name, number);
+        if (discipline.isEmpty()) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(DISC_NAME, name);
+            contentValues.put(DISC_FULL_NAME, fullName);
+            contentValues.put(DISC_NUMBER, number);
+            newRowName = database.insert(TABLE_ROOM, null, contentValues);
+        } else newRowName = Long.parseLong(discipline.getName());
+        return newRowName;
+    }
+
+
+
 }
+
+
+
+
+

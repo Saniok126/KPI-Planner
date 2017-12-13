@@ -11,6 +11,10 @@ public class Discipline {
     private String fullName;
     private String number;
 
+    public boolean isEmpty(){
+        return (id == null);
+    }
+
     public String getId() {
         return id;
     }
