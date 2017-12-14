@@ -37,8 +37,6 @@ public class ScheduleFragment extends Fragment {
         tabLayout.setupWithViewPager(viewPager);
 
         return rootView;
-
-
     }
 
     @Override
@@ -82,8 +80,12 @@ public class ScheduleFragment extends Fragment {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_page, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            //TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+            //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+
+            //View lv = rootView.findViewById(R.id.list);
+            //((BaseActivity)getActivity()).jsonParsing(lv);
+
             return rootView;
         }
     }
