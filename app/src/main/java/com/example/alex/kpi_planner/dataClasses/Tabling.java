@@ -10,9 +10,25 @@ public class Tabling {
     private String dayId;
     private String disciplineId;
     private String lessonId;
-    private String roomId;
     private String type;
+    private String roomId;
     private String teacher;
+
+    public Tabling(){
+
+    }
+
+    public Tabling(String id, String dayId, String disciplineId, String lessonId, String type) {
+        this.id = id;
+        this.dayId = dayId;
+        this.disciplineId = disciplineId;
+        this.lessonId = lessonId;
+        this.type = type;
+    }
+
+    public boolean isEmpty(){
+        return (id == null && dayId == null);
+    }
 
     public String getId() {
         return id;

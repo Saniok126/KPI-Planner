@@ -22,7 +22,7 @@ import com.example.alex.kpi_planner.dataClasses.Day;
 
 public class BaseActivity extends AppCompatActivity {
 
-    DBHelper dbHelper;
+    private DBHelper dbHelper;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {

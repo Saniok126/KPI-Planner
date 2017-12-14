@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.example.alex.kpi_planner.dataClasses.Tabling;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,8 +57,8 @@ public class DatabaseTest {
     public void lessonTest() throws Exception {
         assertEquals(null, dbHelper.selectLesson("1").getStartTime());
         assertEquals(0, dbHelper.countLessons());
-        assertEquals(8, dbHelper.insertLessons());
-        assertEquals(8, dbHelper.countLessons());
+        assertEquals(7, dbHelper.insertLessons());
+        assertEquals(7, dbHelper.countLessons());
         assertEquals("8:30", dbHelper.selectLesson("1").getStartTime());
         assertEquals("12:20", dbHelper.selectLesson("3").getStartTime());
         assertEquals("12:00", dbHelper.selectLesson("2").getEndTime());
@@ -74,12 +76,31 @@ public class DatabaseTest {
     @Test
     public void disciplineTest() throws Exception {
         assertEquals(null, dbHelper.selectDisc("100").getId());
-        assertEquals(1, dbHelper.insertDisc("Mobile","100", "Mobile dev"));
-        assertEquals(2, dbHelper.insertDisc("Mobile2","200", "Mobile dev2"));
+        assertEquals(1, dbHelper.insertDisc("100","Mobile", "Mobile dev"));
+        assertEquals(1, dbHelper.insertDisc("100","Mobile", "Mobile dev"));
+        assertEquals(2, dbHelper.insertDisc("200","Mobile2", "Mobile dev2"));
         assertEquals("2", dbHelper.selectDisc("200").getId());
         assertEquals("Mobile dev2", dbHelper.selectDisc("200").getFullName());
+    }
+
+    @Test
+    public void tablingTest() throws Exception {
+        Tabling tabling = new Tabling("0", "2", "3", "2", "1");
+        Tabling tabling2 = new Tabling("0", "2", "1", "3", "2");
+
+        assertEquals(null, dbHelper.selectTabling(tabling).getId());
+        assertEquals(1, dbHelper.insertTabling(tabling));
+        assertEquals(1, dbHelper.insertTabling(tabling));
+        assertEquals(2, dbHelper.insertTabling(tabling2));
+        assertEquals("1", dbHelper.selectTabling(tabling).getId());
+        assertEquals("2", dbHelper.selectTabling(tabling2).getId());
+        assertEquals("2", dbHelper.selectTabling(tabling).getDayId());
+        assertEquals("3", dbHelper.selectTabling(tabling).getDisciplineId());
+        assertEquals("2", dbHelper.selectTabling(tabling).getLessonId());
+        assertEquals("1", dbHelper.selectTabling(tabling).getType());
 
     }
+
 
 
     @After

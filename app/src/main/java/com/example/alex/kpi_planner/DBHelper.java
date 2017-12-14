@@ -14,6 +14,7 @@ import com.example.alex.kpi_planner.dataClasses.Day;
 import com.example.alex.kpi_planner.dataClasses.Discipline;
 import com.example.alex.kpi_planner.dataClasses.Lesson;
 import com.example.alex.kpi_planner.dataClasses.Room;
+import com.example.alex.kpi_planner.dataClasses.Tabling;
 
 /**
  * Created by Saniok on 11.12.2017.
@@ -293,22 +294,65 @@ public class DBHelper extends SQLiteOpenHelper {
         return discipline;
     }
 
-
-    public long insertDisc(String name, String number, String fullName) {
+    public long insertDisc(String number, String name, String fullName) {
         SQLiteDatabase database = getWritableDatabase();
         long newRowName;
         Discipline discipline = selectDisc(number);
         if (discipline.isEmpty()) {
             ContentValues contentValues = new ContentValues();
+            contentValues.put(DISC_NUMBER, number);
             contentValues.put(DISC_NAME, name);
             contentValues.put(DISC_FULL_NAME, fullName);
-            contentValues.put(DISC_NUMBER, number);
-            newRowName = database.insert(TABLE_ROOM, null, contentValues);
+            newRowName = database.insert(TABLE_DISCIPLINE, null, contentValues);
         } else newRowName = Long.parseLong(discipline.getId());
         return newRowName;
     }
 
 
+    public Tabling selectTabling(Tabling tabling) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        String selectQuery = String.format(
+                "SELECT * FROM %s WHERE %s = %s AND %s = %s",
+                TABLE_TABLING, TABLING_DAY_ID, tabling.getDayId(),
+                TABLING_LESSON_ID, tabling.getLessonId());
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        Tabling table = new Tabling();
+        if (c != null) {
+            c.moveToFirst();
+
+            if (c.getCount() > 0) {
+                table.setId(c.getString(c.getColumnIndex(TABLING_ID)));
+                table.setDayId(c.getString(c.getColumnIndex(TABLING_DAY_ID)));
+                table.setDisciplineId(c.getString(c.getColumnIndex(TABLING_DISC_ID)));
+                table.setLessonId(c.getString(c.getColumnIndex(TABLING_LESSON_ID)));
+                table.setType(c.getString(c.getColumnIndex(TABLING_TYPE)));
+                table.setRoomId(c.getString(c.getColumnIndex(TABLING_ROOM_ID)));
+                table.setTeacher(c.getString(c.getColumnIndex(TABLING_TEACHER)));
+            }
+        }
+        return table;
+    }
+
+
+    public long insertTabling(Tabling tabling){
+        SQLiteDatabase database = getWritableDatabase();
+        long newRowId;
+        Tabling table = selectTabling(tabling);
+        if (table.isEmpty()) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(TABLING_DAY_ID, tabling.getDayId());
+            contentValues.put(TABLING_DISC_ID, tabling.getDisciplineId());
+            contentValues.put(TABLING_LESSON_ID, tabling.getLessonId());
+            contentValues.put(TABLING_TYPE, tabling.getType());
+            contentValues.put(TABLING_ROOM_ID, "339");
+            contentValues.put(TABLING_TEACHER, "Ivan Grozniy");
+            newRowId = database.insert(TABLE_TABLING, null, contentValues);
+        } else newRowId = Long.parseLong(table.getId());
+        return newRowId;
+    }
 
 }
 
