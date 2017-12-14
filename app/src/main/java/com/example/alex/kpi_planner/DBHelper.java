@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.example.alex.kpi_planner.dataClasses.Building;
 import com.example.alex.kpi_planner.dataClasses.Day;
 import com.example.alex.kpi_planner.dataClasses.Discipline;
+import com.example.alex.kpi_planner.dataClasses.Lesson;
 import com.example.alex.kpi_planner.dataClasses.Room;
 
 /**
@@ -180,6 +181,28 @@ public class DBHelper extends SQLiteOpenHelper {
         return count;
     }
 
+    public Lesson selectLesson(String id) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        String selectQuery = String.format(
+                "SELECT * FROM %s WHERE %s = %s",
+                TABLE_LESSON, LESSON_ID, id);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        Lesson lesson = new Lesson();
+        if (c != null) {
+            c.moveToFirst();
+
+            if (c.getCount() > 0) {
+                lesson.setId(c.getString(c.getColumnIndex(LESSON_ID)));
+                lesson.setStartTime(c.getString(c.getColumnIndex(LESSON_START_TIME)));
+                lesson.setEndTime(c.getString(c.getColumnIndex(LESSON_END_TIME)));
+            }
+        }
+        return lesson;
+    }
+
     public long insertBuilding(String name, String latitude, String longitude) {
         SQLiteDatabase database = getWritableDatabase();
         long newRowId;
@@ -217,7 +240,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return building;
     }
 
-
     public Room selectRoom(String name, String buildingId) {
         SQLiteDatabase db = getReadableDatabase();
 
@@ -253,7 +275,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return newRowId;
     }
 
-    public Discipline selectDisc(String name, String discnumber) {
+    public Discipline selectDisc(String discnumber) {
         SQLiteDatabase database = getReadableDatabase();
         String selectQuery = String.format("SELECT * FROM %s WHERE %s = %s",
                 TABLE_DISCIPLINE, DISC_NUMBER, discnumber);
@@ -275,14 +297,14 @@ public class DBHelper extends SQLiteOpenHelper {
     public long insertDisc(String name, String number, String fullName) {
         SQLiteDatabase database = getWritableDatabase();
         long newRowName;
-        Discipline discipline = selectDisc(name, number);
+        Discipline discipline = selectDisc(number);
         if (discipline.isEmpty()) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(DISC_NAME, name);
             contentValues.put(DISC_FULL_NAME, fullName);
             contentValues.put(DISC_NUMBER, number);
             newRowName = database.insert(TABLE_ROOM, null, contentValues);
-        } else newRowName = Long.parseLong(discipline.getName());
+        } else newRowName = Long.parseLong(discipline.getId());
         return newRowName;
     }
 
