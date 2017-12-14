@@ -6,13 +6,24 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.alex.kpi_planner.dataClasses.Discipline;
+import com.example.alex.kpi_planner.dataClasses.Tabling;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class ScheduleFragment extends Fragment {
@@ -23,6 +34,9 @@ public class ScheduleFragment extends Fragment {
     public ScheduleFragment() {
         // Required empty public constructor
     }
+
+    public ListView lv;
+    ArrayList<HashMap<String, String>> contactList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -35,6 +49,10 @@ public class ScheduleFragment extends Fragment {
         //???
         TabLayout tabLayout = rootView.findViewById(R.id.dayTabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        //contactList = new ArrayList<>();
+        //lv = (ListView) findViewById(R.id.list);
+        //viewSchedule(rootView);
 
         return rootView;
     }
@@ -50,6 +68,43 @@ public class ScheduleFragment extends Fragment {
         Toast.makeText(getActivity(), "Teacher fragment show", Toast.LENGTH_SHORT).show();
         inflater.inflate(R.menu.menu_schedule, menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    protected DBHelper dbHelper;
+
+    public void viewSchedule(View rootView, String  dayId){
+        dbHelper = new DBHelper(getContext());
+        contactList = new ArrayList<>();
+        lv = rootView.findViewById(R.id.list);
+
+        List<Tabling> listTabling = dbHelper.selectTabling(dayId);
+
+        for (int i = 0; i < listTabling.size(); i++) {
+            HashMap<String, String> singleLesson = new HashMap<>();
+            Tabling table = listTabling.get(i);
+            String discId = table.getDisciplineId();
+            Discipline discipline = dbHelper.selectDiscById(discId);
+
+            Log.e(DBHelper.DATABASE_NAME, "discId " + table.getDisciplineId() + " fullName " + discipline.getFullName());
+
+            String[] typeLessonList = {"Лекція", "Практична", "Лабораторна"};
+            String typeLesson = typeLessonList[Integer.parseInt(table.getType())];
+
+            singleLesson.put("id", table.getLessonId());
+            singleLesson.put("name", discipline.getFullName());
+            singleLesson.put("type", typeLesson);
+
+            contactList.add(singleLesson);
+        }
+
+
+        ListAdapter adapter = new SimpleAdapter(
+                getContext(), contactList,
+                R.layout.list_item, new String[]{"name", "id", "type"},
+                new int[]{R.id.name, R.id.email, R.id.mobile});
+
+        lv.setAdapter(adapter);
+
     }
 
 
@@ -82,18 +137,20 @@ public class ScheduleFragment extends Fragment {
             View rootView = inflater.inflate(R.layout.fragment_page, container, false);
             //TextView textView = (TextView) rootView.findViewById(R.id.section_label);
             //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            Log.e("wtf", getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
 
-            //View lv = rootView.findViewById(R.id.list);
-            //((BaseActivity)getActivity()).jsonParsing(lv);
+            ((ScheduleFragment)getParentFragment())
+                    .viewSchedule(rootView,""+getArguments().getInt(ARG_SECTION_NUMBER));
 
             return rootView;
         }
+
     }
 
 
     public class SchedulePagerAdapter extends FragmentPagerAdapter {
 
-        private String tabTitles[] = new String[]{"Tab1", "Tab2", "Tab3"};
+        private String tabTitles[] = new String[]{"Mon", "Tue", "Wed", "Thu", "Fri"};
 
         public SchedulePagerAdapter(FragmentManager fm) {
             super(fm);
@@ -106,7 +163,7 @@ public class ScheduleFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return 3;
+            return 5;
         }
 
         @Override

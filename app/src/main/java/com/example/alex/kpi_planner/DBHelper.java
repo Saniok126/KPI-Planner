@@ -16,6 +16,9 @@ import com.example.alex.kpi_planner.dataClasses.Lesson;
 import com.example.alex.kpi_planner.dataClasses.Room;
 import com.example.alex.kpi_planner.dataClasses.Tabling;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Saniok on 11.12.2017.
  */
@@ -294,6 +297,24 @@ public class DBHelper extends SQLiteOpenHelper {
         return discipline;
     }
 
+    public Discipline selectDiscById(String id) {
+        SQLiteDatabase database = getReadableDatabase();
+        String selectQuery = String.format("SELECT * FROM %s WHERE %s = %s",
+                TABLE_DISCIPLINE, DISC_ID, id);
+        Cursor c = database.rawQuery(selectQuery, null);
+        Discipline discipline = new Discipline();
+        if (c != null) {
+            c.moveToFirst();
+            if (c.getCount() > 0) {
+                discipline.setId(c.getString(c.getColumnIndex(DISC_ID)));
+                discipline.setNumber(c.getString(c.getColumnIndex(DISC_NUMBER)));
+                discipline.setName(c.getString(c.getColumnIndex(DISC_NAME)));
+                discipline.setFullName(c.getString(c.getColumnIndex(DISC_FULL_NAME)));
+            }
+        }
+        return discipline;
+    }
+
     public long insertDisc(String number, String name, String fullName) {
         SQLiteDatabase database = getWritableDatabase();
         long newRowName;
@@ -335,6 +356,37 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return table;
     }
+
+    public List<Tabling> selectTabling(String dayId) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        String selectQuery = String.format(
+                "SELECT * FROM %s WHERE %s = %s",
+                TABLE_TABLING, TABLING_DAY_ID, dayId);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        List<Tabling> tableList = new ArrayList<>();
+        if (c.moveToFirst()) {
+            do {
+                if (c.getCount() > 0) {
+                    Tabling table = new Tabling();
+                    table.setId(c.getString(c.getColumnIndex(TABLING_ID)));
+                    table.setDayId(c.getString(c.getColumnIndex(TABLING_DAY_ID)));
+                    table.setDisciplineId(c.getString(c.getColumnIndex(TABLING_DISC_ID)));
+                    table.setLessonId(c.getString(c.getColumnIndex(TABLING_LESSON_ID)));
+                    table.setType(c.getString(c.getColumnIndex(TABLING_TYPE)));
+                    table.setRoomId(c.getString(c.getColumnIndex(TABLING_ROOM_ID)));
+                    table.setTeacher(c.getString(c.getColumnIndex(TABLING_TEACHER)));
+                    tableList.add(table);
+                    //Log.e(DBHelper.DATABASE_NAME, " " + table.getTeacher() + " " + table.getLessonId());
+                }
+
+            } while (c.moveToNext());
+        }
+        return tableList;
+    }
+
 
 
     public long insertTabling(Tabling tabling){
